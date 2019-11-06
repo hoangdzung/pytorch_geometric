@@ -12,7 +12,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def cross_validation_with_val_set(dataset, model, folds, epochs, batch_size,
                                   lr, lr_decay_factor, lr_decay_step_size,
-                                  weight_decay, logger=None):
+                                  weight_decay, logger=None, loss_weights=[0,0,0,0]):
 
     val_losses, accs, durations = [], [], []
     for fold, (train_idx, test_idx,
@@ -40,7 +40,7 @@ def cross_validation_with_val_set(dataset, model, folds, epochs, batch_size,
         t_start = time.perf_counter()
 
         for epoch in range(1, epochs + 1):
-            train_loss = train(model, optimizer, train_loader)
+            train_loss = train(model, optimizer, train_loader, loss_weights)
             val_losses.append(eval_loss(model, val_loader))
             accs.append(eval_acc(model, test_loader))
             eval_info = {
@@ -104,14 +104,14 @@ def num_graphs(data):
         return data.x.size(0)
 
 
-def train(model, optimizer, loader):
+def train(model, optimizer, loader, loss_weights=[0,0,0,0]):
     model.train()
 
     total_loss = 0
     for data in loader:
         optimizer.zero_grad()
         data = data.to(device)
-        out, aux_loss = model(data)
+        out, aux_loss = model(data, loss_weights)
         loss = F.nll_loss(out, data.y.view(-1))
         combine_loss = loss + aux_loss
         combine_loss.backward()

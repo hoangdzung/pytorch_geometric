@@ -22,6 +22,7 @@ parser.add_argument('--lr', type=float, default=0.01)
 parser.add_argument('--lr_decay_factor', type=float, default=0.5)
 parser.add_argument('--lr_decay_step_size', type=int, default=50)
 parser.add_argument('--dataset_idx', type=int)
+parser.add_argument('--loss_weights', nargs="+", type=int)
 args = parser.parse_args()
 
 layers = [1, 2, 3, 4, 5]
@@ -72,6 +73,7 @@ for dataset_name, Net in product(datasets, nets):
             lr_decay_step_size=args.lr_decay_step_size,
             weight_decay=0,
             logger=None,
+            loss_weights=loss_weights
         )
         if loss < best_result[0]:
             best_result = (loss, acc, std)
