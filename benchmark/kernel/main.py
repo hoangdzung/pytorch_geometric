@@ -22,9 +22,13 @@ parser.add_argument('--lr', type=float, default=0.01)
 parser.add_argument('--lr_decay_factor', type=float, default=0.5)
 parser.add_argument('--lr_decay_step_size', type=int, default=50)
 parser.add_argument('--dataset_idx', type=int)
-parser.add_argument('--loss_weights', nargs="+", type=int)
+parser.add_argument('--link_loss', action='store_true')
+parser.add_argument('--entropy_loss', action='store_true')
+parser.add_argument('--adj_loss', action='store_true')
+parser.add_argument('--s_loss', action='store_true')
 args = parser.parse_args()
 
+loss_weights = [int(args.link_loss), int(args.entropy_loss), int(adj_loss), int(s_loss)]
 layers = [1, 2, 3, 4, 5]
 hiddens = [16, 32, 64, 128]
 datasets = ['MUTAG', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY'][args.dataset_idx:args.dataset_idx+1]  # , 'COLLAB']
