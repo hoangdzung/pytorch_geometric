@@ -26,7 +26,7 @@ args = parser.parse_args()
 
 layers = [1, 2, 3, 4, 5]
 hiddens = [16, 32, 64, 128]
-datasets = ['MUTAG', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY'][args.dataset_idx:dataset_idx+1]  # , 'COLLAB']
+datasets = ['MUTAG', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY'][args.dataset_idx:args.dataset_idx+1]  # , 'COLLAB']
 nets = [
     # GCNWithJK,
     # GraphSAGEWithJK,

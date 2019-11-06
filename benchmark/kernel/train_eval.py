@@ -111,9 +111,10 @@ def train(model, optimizer, loader):
     for data in loader:
         optimizer.zero_grad()
         data = data.to(device)
-        out = model(data)
+        out, aux_loss = model(data)
         loss = F.nll_loss(out, data.y.view(-1))
-        loss.backward()
+        combine_loss = loss + aux_loss
+        combine_loss.backward()
         total_loss += loss.item() * num_graphs(data)
         optimizer.step()
     return total_loss / len(loader.dataset)
@@ -126,7 +127,7 @@ def eval_acc(model, loader):
     for data in loader:
         data = data.to(device)
         with torch.no_grad():
-            pred = model(data).max(1)[1]
+            pred = model(data)[0].max(1)[1]
         correct += pred.eq(data.y.view(-1)).sum().item()
     return correct / len(loader.dataset)
 
@@ -138,6 +139,6 @@ def eval_loss(model, loader):
     for data in loader:
         data = data.to(device)
         with torch.no_grad():
-            out = model(data)
+            out,_ = model(data)
         loss += F.nll_loss(out, data.y.view(-1), reduction='sum').item()
     return loss / len(loader.dataset)

@@ -59,13 +59,33 @@ class DiffPool(torch.nn.Module):
         self.lin1.reset_parameters()
         self.lin2.reset_parameters()
 
-    def forward(self, data):
+    def adj_loss(self, adj):
+        n_cluster = adj.shape[1]
+        diag_batch = torch.diagonal(adj,dim1=1,dim2=2)
+        return torch.sum((diag_batch - torch.mean(diag_batch,-1,True))**2)
+
+    def s_loss(self, s):
+        s_batch = s.sum(1)
+        return torch.sum((s_batch - torch.mean(s_batch,-1,True))**2)
+
+    def forward(self, data, weight=[0,0,0,0]):
         x, adj, mask = data.x, data.adj, data.mask
 
         s = self.pool_block1(x, adj, mask, add_loop=True)
         x = F.relu(self.embed_block1(x, adj, mask, add_loop=True))
         xs = [x.mean(dim=1)]
-        x, adj, _, _ = dense_diff_pool(x, adj, s, mask)
+
+        link_losses = []
+        entropy_losses = []
+        adj_losses = []
+        s_losses = []
+
+        x, adj, l, e = dense_diff_pool(x, adj, s, mask)
+
+        link_losses.append(l)
+        entropy_losses.append(e)
+        adj_losses.append(self.adj_loss(adj))
+        s_losses.append(self.s_loss(s))
 
         for i, (embed_block, pool_block) in enumerate(
                 zip(self.embed_blocks, self.pool_blocks)):
@@ -73,13 +93,17 @@ class DiffPool(torch.nn.Module):
             x = F.relu(embed_block(x, adj))
             xs.append(x.mean(dim=1))
             if i < len(self.embed_blocks) - 1:
-                x, adj, _, _ = dense_diff_pool(x, adj, s)
+                x, adj, l, e = dense_diff_pool(x, adj, s)
+                link_losses.append(l)
+                entropy_losses.append(e)
+                adj_losses.append(self.adj_loss(adj))
+                s_losses.append(self.s_loss(s))
 
         x = self.jump(xs)
         x = F.relu(self.lin1(x))
         x = F.dropout(x, p=0.5, training=self.training)
         x = self.lin2(x)
-        return F.log_softmax(x, dim=-1)
+        return F.log_softmax(x, dim=-1), sum(link_losses)*weight[0] + sum(entropy_losses)*weight[1] + sum(adj_losses)*weight[2]+sum(s_losses)*weight[3]
 
     def __repr__(self):
         return self.__class__.__name__
