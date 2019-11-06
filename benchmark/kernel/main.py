@@ -21,27 +21,28 @@ parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--lr', type=float, default=0.01)
 parser.add_argument('--lr_decay_factor', type=float, default=0.5)
 parser.add_argument('--lr_decay_step_size', type=int, default=50)
+parser.add_argument('--dataset_idx', type=int)
 args = parser.parse_args()
 
 layers = [1, 2, 3, 4, 5]
 hiddens = [16, 32, 64, 128]
-datasets = ['MUTAG', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']  # , 'COLLAB']
+datasets = ['MUTAG', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY'][args.dataset_idx:dataset_idx+1]  # , 'COLLAB']
 nets = [
-    GCNWithJK,
-    GraphSAGEWithJK,
-    GIN0WithJK,
-    GINWithJK,
-    Graclus,
-    TopK,
-    SAGPool,
+    # GCNWithJK,
+    # GraphSAGEWithJK,
+    # GIN0WithJK,
+    # GINWithJK,
+    # Graclus,
+    # TopK,
+    # SAGPool,
     DiffPool,
-    GCN,
-    GraphSAGE,
-    GIN0,
-    GIN,
-    GlobalAttentionNet,
-    Set2SetNet,
-    SortPool,
+    # GCN,
+    # GraphSAGE,
+    # GIN0,
+    # GIN,
+    # GlobalAttentionNet,
+    # Set2SetNet,
+    # SortPool,
 ]
 
 
