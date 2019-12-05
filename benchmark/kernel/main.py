@@ -28,7 +28,7 @@ parser.add_argument('--adj_loss', action='store_true')
 parser.add_argument('--s_loss', action='store_true')
 args = parser.parse_args()
 
-loss_weights = [int(args.link_loss), int(args.entropy_loss), int(adj_loss), int(s_loss)]
+loss_weights = [int(args.link_loss), int(args.entropy_loss), int(args.adj_loss), int(args.s_loss)]
 layers = [1, 2, 3, 4, 5]
 hiddens = [16, 32, 64, 128]
 datasets = ['MUTAG', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY'][args.dataset_idx:args.dataset_idx+1]  # , 'COLLAB']
