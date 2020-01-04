@@ -12,7 +12,7 @@ class Block(torch.nn.Module):
 
         self.conv1 = DenseSAGEConv(in_channels, hidden_channels)
         self.conv2 = DenseSAGEConv(hidden_channels, out_channels)
-        self.jump = JumpingKnowledge(mode)
+        # self.jump = JumpingKnowledge(mode)
         if mode == 'cat':
             self.lin = Linear(hidden_channels + out_channels, out_channels)
         else:
@@ -26,7 +26,8 @@ class Block(torch.nn.Module):
     def forward(self, x, adj, mask=None, add_loop=True):
         x1 = F.relu(self.conv1(x, adj, mask, add_loop))
         x2 = F.relu(self.conv2(x1, adj, mask, add_loop))
-        return self.lin(self.jump([x1, x2]))
+        # return self.lin(self.jump([x1, x2]))
+        return self.lin(torch.cat([x1, x2], dim=-1))
 
 
 class DiffPool(torch.nn.Module):
